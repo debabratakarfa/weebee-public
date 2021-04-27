@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\Workshop;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -13,16 +15,42 @@ class EventsController extends BaseController
 {
     public function getEventsWithWorkshops()
     {
-        $events = Event::orderby('id', 'asc')->select('*')->get();
-        if (!empty($events)) {
-            return response()->json($events);
+        $response = [];
+        $results = \App\Models\Event::all()->toArray();
+        foreach ($results as $result) {
+            $workshops = Workshop::orderby('id', 'asc')->select('*')->where('event_id', $result['id'])->get();
+            $result['workshops'] = $workshops;
+            $response[] = $result;
+        }
+
+        if (empty($response)) {
+            throw new \Exception('implement in coding task 2');
         } else {
-            throw new \Exception('implement in coding task 1');
+            return response()->json($response);
         }
     }
 
     public function getFutureEventsWithWorkshops()
     {
-        throw new \Exception('implement in coding task 2');
+        $now = Carbon::now();
+        $response = [];
+        $results = \App\Models\Event::all()->toArray();
+        foreach ($results as $result) {
+            $workshops = Workshop::orderby('id', 'asc')
+                ->select('*')
+                ->where('event_id', $result['id'])
+                ->where('end', '>=', $now)
+                ->get();
+            if (count($workshops) !== 0) {
+                $result['workshops'] = $workshops;
+                $response[] = $result;
+            }
+        }
+
+        if (empty($response)) {
+            throw new \Exception('implement in coding task 2');
+        } else {
+            return response()->json($response);
+        }
     }
 }

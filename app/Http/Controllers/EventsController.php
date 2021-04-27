@@ -11,11 +11,18 @@ use Illuminate\Support\Facades\Date;
 
 class EventsController extends BaseController
 {
-    public function getEventsWithWorkshops() {
-        throw new \Exception('implement in coding task 1');
+    public function getEventsWithWorkshops()
+    {
+        $events = Event::orderby('id', 'asc')->select('*')->get();
+        if (!empty($events)) {
+            return response()->json($events);
+        } else {
+            throw new \Exception('implement in coding task 1');
+        }
     }
 
-    public function getFutureEventsWithWorkshops() {
+    public function getFutureEventsWithWorkshops()
+    {
         throw new \Exception('implement in coding task 2');
     }
 }
